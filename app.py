@@ -7,6 +7,8 @@ import urllib.parse
 import cloudinary
 import cloudinary.uploader
 import dns
+import functools
+import time
 
 from predictor import return_prediction
 
@@ -28,6 +30,22 @@ def index():
     return '<h1> FLASK APP IS RUNNING</h1>'
 
 
+def autoreconnect(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        max_retry = 3
+        attempts = 0
+        while True:
+            try:
+                return f(*args, **kwargs)
+            except pymongo.errors.AutoReconnect as e:
+                attempts += 1
+                if attempts >= max_retry:
+                    raise e
+                time.sleep(0.3)
+    return wrapper
+
+
 def allowed_image(filename):
     allowed_ext = ["JPG", "PNG", "JPEG"]
 
@@ -40,6 +58,7 @@ def allowed_image(filename):
         return False
 
 @app.route('/upload-image', methods=["GET", "POST"])
+@autoreconnect
 def upload_image():
     if request.files:
         try:
@@ -67,6 +86,7 @@ def upload_image():
     return jsonify({'status': 'success', 'message': 'Image predicted successfully', 'predict': result, 'image_url': "url"}), 200
 
 @app.route('/images', methods=["GET"])
+@autoreconnect
 def get_all_images():
     result = []
     try:
