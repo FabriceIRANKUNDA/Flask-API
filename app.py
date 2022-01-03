@@ -64,11 +64,12 @@ def upload_image():
     try:
         if request.files:
             content = image.stream.read()
-            print("Closed", image.closed)
+            print("Closed", content)
             cloudinary.config(
             cloud_name = "doi0bys97",
             api_key = "892939279365239",
             api_secret = "WMOPFxJLPP0DEVq8wR4e5afC34o")
+            print("Closed", content)
             result_cloud = cloudinary.uploader.upload(content)
             url = result_cloud.get("url")
             result = ""
