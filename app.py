@@ -63,6 +63,7 @@ def upload_image():
     if request.files:
         image = request.files["image"]
         content = image.stream.read()
+        print(image.closed)
         try:
             cloudinary.config(
             cloud_name = "doi0bys97",
@@ -84,6 +85,7 @@ def upload_image():
             return jsonify({'status': 'success', 'message': 'Image predicted successfully', 'predict': result, 'image_url': url}), 200
         finally:
             image.close()
+            print(image.closed)
 
 @app.route('/images', methods=["GET"])
 @autoreconnect
