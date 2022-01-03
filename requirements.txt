@@ -1,8 +1,8 @@
 # packages in environment at C:\Users\irank\anaconda3\envs\tf_model:
 #
 # Name                    Version                   Build  Channel
-absl-py                   1.0.0                    pypi_0    pypi
-astunparse                1.6.3                    pypi_0    pypi
+# absl-py                   1.0.0                    pypi_0    pypi
+# astunparse                1.6.3                    pypi_0    pypi
 ca-certificates           2021.10.26           haa95532_2  
 cachetools                4.2.4                    pypi_0    pypi
 certifi                   2021.10.8        py38haa95532_0  
