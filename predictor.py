@@ -13,9 +13,7 @@ def return_prediction(content, file_name):
 
     img_sent = image.load_img('./image/' + file_name, target_size=(245, 245, 3))
     model = load_model(model_path)
-    # my_image = image.img_to_array(frame)
     my_image_shape = np.expand_dims(img_sent, axis=0)
-    print("IMAGE HHHHHHHHHHHHHH", my_image_shape.shape)
     result = model.predict(my_image_shape)
     os.remove("./image/" + file_name)
     predicted_class = ""
