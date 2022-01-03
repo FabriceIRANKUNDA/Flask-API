@@ -17,12 +17,16 @@ password = urllib.parse.quote("sensorNode@mongodb")
 host = '@cluster0.v7qp1.mongodb.net'
 db = 'sensorNodesample'
 uri = f'mongodb+srv://{login}:{password}{host}/{db}'
+t_url = None
+t_res = None
 
 
 
 app = Flask(__name__)
 CORS(app)
 mongo = pymongo.MongoClient(uri)
+db = mongo['sensorNodesample']
+col = db['images']
 
 # print(mongo.list_database_names())
 @app.route('/')
@@ -71,19 +75,21 @@ def upload_image():
                 api_secret = "WMOPFxJLPP0DEVq8wR4e5afC34o")
 
                 result_cloud = cloudinary.uploader.upload(content)
-                url = result_cloud.get("url")
-                result = ""
+                global t_url 
+                t_url = result_cloud.get("url")
+                global t_res
                 
                 if image.filename == "":
                     return jsonify({'status': 'fail', 'message': 'Image must have name.'})
                 if not allowed_image(image.filename):
                     return jsonify({'status': 'fail', 'message': 'Unsupported image. allowed images: JPG, PNG and JPEG'})
                 else:
-                    db = mongo['sensorNodesample']
-                    col = db['images']
-                    result = return_prediction(content, image.filename)
-                    col.insert_one({"url": url, "prediction": result})
-                return jsonify({'status': 'success', 'message': 'Image predicted successfully', 'predict': result, 'image_url': url}), 200
+                    t_res = return_prediction(content, image.filename)
+                    col.insert_one({"url": t_url, "prediction": t_res})
+                    return jsonify({'status': 'success', 'message': 'Image predicted successfully', 'predict': t_res, 'image_url': t_url}), 200
+            else:
+                col.insert_one({"url": t_url, "prediction": t_res})
+                return jsonify({'status': 'success', 'message': 'Image predicted successfully', 'predict': t_res, 'image_url': t_url}), 200
     except FileNotFoundError:
         pass
     else:
@@ -94,8 +100,6 @@ def upload_image():
 def get_all_images():
     result = []
     try:
-        db = mongo['sensorNodesample']
-        col = db['images']
         for img in col.find().sort('createdAt', pymongo.DESCENDING):
             result.append({'url': img['url'], 'pred': img['prediction'], 'createdAt': img['createdAt']})
         return jsonify({'status': 'success', 'message': 'Image predicted successfully', 'data': result, }), 200
