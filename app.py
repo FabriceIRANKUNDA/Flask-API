@@ -62,9 +62,9 @@ def allowed_image(filename):
 def upload_image():
     if request.files:
         image = request.files["image"]
-        content = image.stream.read()
         print(image.closed)
         try:
+            content = image.stream.read()
             cloudinary.config(
             cloud_name = "doi0bys97",
             api_key = "892939279365239",
