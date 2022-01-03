@@ -21,9 +21,8 @@ uri = f'mongodb+srv://{login}:{password}{host}/{db}'
 app = Flask(__name__)
 CORS(app)
 mongo = pymongo.MongoClient(uri)
-db = mongo['sensorNodesample']
-col = db['images']
-print(mongo.list_database_names())
+
+# print(mongo.list_database_names())
 @app.route('/')
 def index():
     return '<h1> FLASK APP IS RUNNING</h1>'
@@ -59,6 +58,8 @@ def upload_image():
             if not allowed_image(image.filename):
                 return jsonify({'status': 'fail', 'message': 'Unsupported image. allowed images: JPG, PNG and JPEG'})
             else:
+                db = mongo['sensorNodesample']
+                col = db['images']
                 result = return_prediction(content, image.filename)
                 col.insert_one({"url": url, "prediction": result, "createdAt": datetime.now()})
         finally:
@@ -68,9 +69,15 @@ def upload_image():
 @app.route('/images', methods=["GET"])
 def get_all_images():
     result = []
-    for img in col.find().sort('createdAt', pymongo.DESCENDING):
-        result.append({'url': img['url'], 'pred': img['prediction'], 'createdAt': img['createdAt']})
-    return jsonify({'status': 'success', 'message': 'Image predicted successfully', 'data': result, }), 200
+    try:
+        db = mongo['sensorNodesample']
+        col = db['images']
+        for img in col.find().sort('createdAt', pymongo.DESCENDING):
+            result.append({'url': img['url'], 'pred': img['prediction'], 'createdAt': img['createdAt']})
+        return jsonify({'status': 'success', 'message': 'Image predicted successfully', 'data': result, }), 200
+    finally:
+        pass
+    
 
 if __name__ == '__main__':
     app.run()
