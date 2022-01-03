@@ -60,10 +60,11 @@ def allowed_image(filename):
 @app.route('/upload-image', methods=["GET", "POST"])
 @autoreconnect
 def upload_image():
-    if request.files:
-        image = request.files["image"]
-        try:
+    image = request.files["image"]
+    try:
+        if request.files:
             content = image.stream.read()
+            print("Closed", image.closed)
             cloudinary.config(
             cloud_name = "doi0bys97",
             api_key = "892939279365239",
@@ -81,10 +82,11 @@ def upload_image():
                 col = db['images']
                 result = return_prediction(content, image.filename)
                 col.insert_one({"url": url, "prediction": result, "createdAt": datetime.now()})
-            image.close()
             return jsonify({'status': 'success', 'message': 'Image predicted successfully', 'predict': result, 'image_url': url}), 200
-        finally:
-            pass
+    except FileNotFoundError:
+        pass
+    else:
+        image.close()
 
 @app.route('/images', methods=["GET"])
 @autoreconnect
