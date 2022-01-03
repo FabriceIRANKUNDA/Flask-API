@@ -64,26 +64,26 @@ def upload_image():
     try:
         if request.files:
             content = image.stream.read()
-            print("Closed", content)
-            cloudinary.config(
-            cloud_name = "doi0bys97",
-            api_key = "892939279365239",
-            api_secret = "WMOPFxJLPP0DEVq8wR4e5afC34o")
-            print("Closed", content)
-            result_cloud = cloudinary.uploader.upload(content)
-            url = result_cloud.get("url")
-            result = ""
-            
-            if image.filename == "":
-                return jsonify({'status': 'fail', 'message': 'Image must have name.'})
-            if not allowed_image(image.filename):
-                return jsonify({'status': 'fail', 'message': 'Unsupported image. allowed images: JPG, PNG and JPEG'})
-            else:
-                db = mongo['sensorNodesample']
-                col = db['images']
-                result = return_prediction(content, image.filename)
-                col.insert_one({"url": url, "prediction": result, "createdAt": datetime.now()})
-            return jsonify({'status': 'success', 'message': 'Image predicted successfully', 'predict': result, 'image_url': url}), 200
+            if content != b'':
+                cloudinary.config(
+                cloud_name = "doi0bys97",
+                api_key = "892939279365239",
+                api_secret = "WMOPFxJLPP0DEVq8wR4e5afC34o")
+
+                result_cloud = cloudinary.uploader.upload(content)
+                url = result_cloud.get("url")
+                result = ""
+                
+                if image.filename == "":
+                    return jsonify({'status': 'fail', 'message': 'Image must have name.'})
+                if not allowed_image(image.filename):
+                    return jsonify({'status': 'fail', 'message': 'Unsupported image. allowed images: JPG, PNG and JPEG'})
+                else:
+                    db = mongo['sensorNodesample']
+                    col = db['images']
+                    result = return_prediction(content, image.filename)
+                    col.insert_one({"url": url, "prediction": result})
+                return jsonify({'status': 'success', 'message': 'Image predicted successfully', 'predict': result, 'image_url': url}), 200
     except FileNotFoundError:
         pass
     else:
