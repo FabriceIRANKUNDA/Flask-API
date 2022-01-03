@@ -85,10 +85,10 @@ def upload_image():
                     return jsonify({'status': 'fail', 'message': 'Unsupported image. allowed images: JPG, PNG and JPEG'})
                 else:
                     t_res = return_prediction(content, image.filename)
-                    col.insert_one({"url": t_url, "prediction": t_res})
+                    col.insert_one({"url": t_url, "prediction": t_res, "createdAt": datetime.now()})
                     return jsonify({'status': 'success', 'message': 'Image predicted successfully', 'predict': t_res, 'image_url': t_url}), 200
             else:
-                col.insert_one({"url": t_url, "prediction": t_res})
+                col.insert_one({"url": t_url, "prediction": t_res, "createdAt": datetime.now()})
                 return jsonify({'status': 'success', 'message': 'Image predicted successfully', 'predict': t_res, 'image_url': t_url}), 200
     except FileNotFoundError:
         pass
