@@ -28,11 +28,6 @@ mongo = pymongo.MongoClient(uri)
 db = mongo['sensorNodesample']
 col = db['images']
 
-# print(mongo.list_database_names())
-@app.route('/')
-def index():
-    return '<h1> FLASK APP IS RUNNING</h1>'
-
 
 def autoreconnect(f):
     @functools.wraps(f)
